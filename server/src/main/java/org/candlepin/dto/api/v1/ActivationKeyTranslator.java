@@ -16,15 +16,16 @@ package org.candlepin.dto.api.v1;
 
 import org.candlepin.dto.ModelTranslator;
 import org.candlepin.dto.TimestampedEntityTranslator;
-import org.candlepin.model.Owner;
 import org.candlepin.model.Product;
 import org.candlepin.model.Release;
 import org.candlepin.model.activationkeys.ActivationKey;
-import org.candlepin.model.activationkeys.ActivationKeyContentOverride;
 import org.candlepin.model.activationkeys.ActivationKeyPool;
+import org.candlepin.model.activationkeys.ActivationKeyContentOverride;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
+
+
 
 /**
  * The ActivationKeyTranslator provides translation from ActivationKey model objects to ActivationKeyDTOs
@@ -70,57 +71,75 @@ public class ActivationKeyTranslator extends TimestampedEntityTranslator<Activat
             .setServiceLevel(source.getServiceLevel())
             .setAutoAttach(source.isAutoAttach());
 
-        // Process nested objects if we have a model translator to use to the translation...
+
+        // Process content overrides
+        Set<ActivationKeyContentOverride> overrides = source.getContentOverrides();
+        dest.setContentOverrides(null);
+
+        if (overrides != null) {
+            Set<ActivationKeyContentOverrideDTO> overrideDTOs = new HashSet<>();
+
+            for (ActivationKeyContentOverride override : overrides) {
+                if (override != null) {
+                    overrideDTOs.add(new ActivationKeyContentOverrideDTO()
+                        .setActivationKey(dest)
+                        .setContentLabel(override.getContentLabel())
+                        .setName(override.getName())
+                        .setValue(override.getValue()));
+                }
+            }
+
+            dest.setContentOverrides(overrideDTOs);
+        }
+        else {
+            dest.setContentOverrides(null);
+        }
+
+        // Set activation key product IDs
+        Set<Product> products = source.getProducts();
+        if (products != null) {
+            Set<String> productIds = new HashSet<>();
+
+            for (Product prod : products) {
+                if (prod != null && prod.getId() != null && !prod.getId().isEmpty()) {
+                    productIds.add(prod.getId());
+                }
+            }
+
+            dest.setProductIds(productIds);
+        }
+        else {
+            dest.setProductIds(null);
+        }
+
+        // Set release version
+        Release release = source.getReleaseVer();
+        dest.setReleaseVersion(release != null ? release.getReleaseVer() : null);
+
+        // Process nested DTO objects if we have a model translator to use to the translation...
         if (modelTranslator != null) {
-            Owner owner = source.getOwner();
-            dest.setOwner(owner != null ? modelTranslator.translate(owner, OwnerDTO.class) : null);
+            dest.setOwner(modelTranslator.translate(source.getOwner(), OwnerDTO.class));
 
             Set<ActivationKeyPool> pools = source.getPools();
-            if (pools != null && !pools.isEmpty()) {
+            if (pools != null) {
+                Set<ActivationKeyDTO.ActivationKeyPoolDTO> poolDTOs = new HashSet<>();
+
                 for (ActivationKeyPool poolEntry : pools) {
                     if (poolEntry != null) {
-                        dest.addPool(new ActivationKeyDTO.ActivationKeyPoolDTO(
+                        poolDTOs.add(new ActivationKeyDTO.ActivationKeyPoolDTO(
                             poolEntry.getPool().getId(), poolEntry.getQuantity()));
                     }
                 }
+
+                dest.setPools(poolDTOs);
             }
             else {
-                dest.setPools(Collections.<ActivationKeyDTO.ActivationKeyPoolDTO>emptySet());
+                dest.setPools(null);
             }
-
-            Set<Product> products = source.getProducts();
-            if (products != null && !products.isEmpty()) {
-                for (Product prod : products) {
-                    if (prod != null) {
-                        dest.addProductId(prod.getId());
-                    }
-                }
-            }
-            else {
-                dest.setProductIds(Collections.<String>emptySet());
-            }
-
-            Set<ActivationKeyContentOverride> overrides = source.getContentOverrides();
-            if (overrides != null && !overrides.isEmpty()) {
-                for (ActivationKeyContentOverride override : overrides) {
-                    if (override != null) {
-                        dest.addContentOverride(
-                            new ActivationKeyDTO.ActivationKeyContentOverrideDTO(
-                            override.getContentLabel(),
-                            override.getName(),
-                            override.getValue()));
-                    }
-                }
-            }
-            else {
-                dest.setContentOverrides(
-                    Collections.<ActivationKeyDTO.ActivationKeyContentOverrideDTO>emptySet());
-            }
-
-            Release release = source.getReleaseVer();
-            if (release != null) {
-                dest.setReleaseVersion(release.getReleaseVer());
-            }
+        }
+        else {
+            dest.setOwner(null);
+            dest.setPools(null);
         }
 
         return dest;
