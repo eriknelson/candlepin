@@ -236,9 +236,8 @@ public class HypervisorUpdateJob extends KingpinJob {
             // TODO Need to ensure that we retrieve existing guestIds from the DB before continuing.
 
             // Maps virt hypervisor ID to registered consumer for that hypervisor, should one exist:
-            VirtConsumerMap hypervisorConsumersMap = consumerCurator.getHostConsumersMap(owner, hosts);
+            VirtConsumerMap hypervisorConsumersMap = consumerCurator.getHostConsumersMap(owner, hypervisors);
             Map<String, GuestId> guestIds = consumerCurator.getGuestIdMap(guests, owner);
-
 
             for (String hypervisorId : hosts) {
                 Consumer knownHost = hypervisorConsumersMap.get(hypervisorId);
