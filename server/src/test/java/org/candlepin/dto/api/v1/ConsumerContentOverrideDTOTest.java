@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * Test suite for the ConsumerContentOverrideDTO class
  */
-public abstract class ConsumerContentOverrideDTOTest extends AbstractDTOTest<ConsumerContentOverrideDTO> {
+public class ConsumerContentOverrideDTOTest extends AbstractDTOTest<ConsumerContentOverrideDTO> {
 
     protected Map<String, Object> values;
 

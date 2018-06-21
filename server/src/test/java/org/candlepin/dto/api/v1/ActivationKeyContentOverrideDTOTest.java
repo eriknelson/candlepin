@@ -25,8 +25,7 @@ import java.util.Map;
 /**
  * Test suite for the ActivationKeyContentOverrideDTO class
  */
-public abstract class ActivationKeyContentOverrideDTOTest extends
-    AbstractDTOTest<ActivationKeyContentOverrideDTO> {
+public class ActivationKeyContentOverrideDTOTest extends AbstractDTOTest<ActivationKeyContentOverrideDTO> {
 
     protected Map<String, Object> values;
 

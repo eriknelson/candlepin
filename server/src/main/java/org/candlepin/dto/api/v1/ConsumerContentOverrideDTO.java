@@ -46,15 +46,15 @@ public class ConsumerContentOverrideDTO extends ContentOverrideDTO<ConsumerConte
      *  The source entity to copy
      */
     public ConsumerContentOverrideDTO(ConsumerContentOverrideDTO source) {
-        this.populate(source);
+        super(source);
     }
 
     /**
-     * Fetches the activation key that's overriding the content. If the activation key has not been
+     * Fetches the consumer that's overriding the content. If the consumer has not been
      * set, this method returns null.
      *
      * @return
-     *  The activation key overriding the content, or null if the activation key has not been set
+     *  The consumer overriding the content, or null if the consumer has not been set
      */
     @JsonIgnore
     public ConsumerDTO getConsumer() {
@@ -62,16 +62,16 @@ public class ConsumerContentOverrideDTO extends ContentOverrideDTO<ConsumerConte
     }
 
     /**
-     * Sets or clears the activation key that's overriding the content. If the provided key is null,
+     * Sets or clears the consumer that's overriding the content. If the provided key is null,
      * any key currently set will be cleared.
      *
      * @param consumer
-     *  The activation key that's overriding the content, or null to clear the key
+     *  The consumer that's overriding the content, or null to clear the key
      *
      * @return
      *  A reference to this DTO
      */
-    @JsonProperty("key")
+    @JsonProperty("consumer")
     public ConsumerContentOverrideDTO setConsumer(ConsumerDTO consumer) {
         this.consumer = consumer;
         return this;
@@ -85,10 +85,10 @@ public class ConsumerContentOverrideDTO extends ContentOverrideDTO<ConsumerConte
         ConsumerDTO consumer = this.getConsumer();
 
         return String.format("ConsumerContentOverrideDTO [consumer: %s, content: %s, name: %s, value: %s]",
+            (consumer != null ? consumer.getId() : null),
             this.getContentLabel(),
             this.getName(),
-            this.getValue(),
-            (consumer != null ? consumer.getId() : null));
+            this.getValue());
     }
 
     /**
@@ -148,6 +148,8 @@ public class ConsumerContentOverrideDTO extends ContentOverrideDTO<ConsumerConte
     @Override
     public ConsumerContentOverrideDTO populate(ConsumerContentOverrideDTO source) {
         super.populate(source);
+
+        this.setConsumer(source.getConsumer());
 
         return this;
     }

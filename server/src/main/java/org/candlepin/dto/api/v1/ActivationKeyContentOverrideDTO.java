@@ -46,7 +46,7 @@ public class ActivationKeyContentOverrideDTO extends ContentOverrideDTO<Activati
      *  The source entity to copy
      */
     public ActivationKeyContentOverrideDTO(ActivationKeyContentOverrideDTO source) {
-        this.populate(source);
+        super(source);
     }
 
     /**
@@ -85,7 +85,10 @@ public class ActivationKeyContentOverrideDTO extends ContentOverrideDTO<Activati
         ActivationKeyDTO key = this.getActivationKey();
 
         return String.format("ActivationKeyContentOverrideDTO [key: %s, content: %s, name: %s, value: %s]",
-            this.getContentLabel(), this.getName(), this.getValue(), (key != null ? key.getId() : null));
+            (key != null ? key.getId() : null),
+            this.getContentLabel(),
+            this.getName(),
+            this.getValue());
     }
 
     /**
@@ -145,6 +148,8 @@ public class ActivationKeyContentOverrideDTO extends ContentOverrideDTO<Activati
     @Override
     public ActivationKeyContentOverrideDTO populate(ActivationKeyContentOverrideDTO source) {
         super.populate(source);
+
+        this.setActivationKey(source.getActivationKey());
 
         return this;
     }

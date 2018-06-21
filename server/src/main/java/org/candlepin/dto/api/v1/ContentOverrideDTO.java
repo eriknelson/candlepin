@@ -51,7 +51,7 @@ public class ContentOverrideDTO<T extends ContentOverrideDTO> extends Timestampe
      *  The source entity to copy
      */
     public ContentOverrideDTO(T source) {
-        this.populate(source);
+        super(source);
     }
 
     /**
