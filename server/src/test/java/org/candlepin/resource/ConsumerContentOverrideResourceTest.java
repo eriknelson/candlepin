@@ -23,7 +23,6 @@ import org.candlepin.auth.Principal;
 import org.candlepin.auth.SubResource;
 import org.candlepin.common.exceptions.BadRequestException;
 import org.candlepin.dto.api.v1.ConsumerDTO;
-import org.candlepin.dto.api.v1.ConsumerContentOverrideDTO;
 import org.candlepin.dto.api.v1.ContentOverrideDTO;
 import org.candlepin.model.Consumer;
 import org.candlepin.model.ConsumerContentOverride;
@@ -103,26 +102,9 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
     }
 
     /**
-     * Converts any collection of ContentOverrideDTOs into a collection of guaranteed generic DTOs.
-     */
-    private List<ContentOverrideDTO> toGenericList(List<? extends ContentOverrideDTO> list) {
-        List<ContentOverrideDTO> output = null;
-
-        if (list != null) {
-            output = new LinkedList<>();
-
-            for (ContentOverrideDTO source : list) {
-                output.add(new ContentOverrideDTO(source));
-            }
-        }
-
-        return output;
-    }
-
-    /**
      * Removes the created and updated timestamps from the DTOs to make comparison easier
      */
-    private List<? extends ContentOverrideDTO> stripTimestamps(List<? extends ContentOverrideDTO> list) {
+    private List<ContentOverrideDTO> stripTimestamps(List<ContentOverrideDTO> list) {
         if (list != null) {
             for (ContentOverrideDTO dto : list) {
                 dto.setCreated(null);
@@ -137,13 +119,8 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
      * Compares the collections of override DTOs by converting them to generic override lists and
      * stripping their timestamps.
      */
-    private void compareOverrideDTOs(List<? extends ContentOverrideDTO> expected,
-        List<? extends ContentOverrideDTO> actual) {
-
-        List<ContentOverrideDTO> expectedGeneric = this.toGenericList(expected);
-        List<ContentOverrideDTO> actualGeneric = this.toGenericList(actual);
-
-        assertEquals(this.stripTimestamps(expectedGeneric), this.stripTimestamps(actualGeneric));
+    private void compareOverrideDTOs(List<ContentOverrideDTO> expected, List<ContentOverrideDTO> actual) {
+        assertEquals(this.stripTimestamps(expected), this.stripTimestamps(actual));
     }
 
     private String getLongString() {
@@ -160,12 +137,12 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
     public void testGetOverrides() {
         List<ConsumerContentOverride> overrides = this.createOverrides(this.consumer, 1, 3);
 
-        List<ConsumerContentOverrideDTO> expected = overrides.stream()
+        List<ContentOverrideDTO> expected = overrides.stream()
             .map(this.modelTranslator.getStreamMapper(ConsumerContentOverride.class,
-                ConsumerContentOverrideDTO.class))
+                ContentOverrideDTO.class))
             .collect(Collectors.toList());
 
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .getContentOverrideList(context, principal)
             .list();
 
@@ -174,7 +151,7 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
 
     @Test
     public void testGetOverridesEmptyList() {
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .getContentOverrideList(context, principal)
             .list();
 
@@ -186,17 +163,16 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
         List<ConsumerContentOverride> overrides = this.createOverrides(this.consumer, 1, 3);
 
         ConsumerContentOverride toDelete = overrides.remove(1);
-        ConsumerContentOverrideDTO toDeleteDTO = new ConsumerContentOverrideDTO()
-            .setConsumer(this.modelTranslator.translate(this.consumer, ConsumerDTO.class))
+        ContentOverrideDTO toDeleteDTO = new ContentOverrideDTO()
             .setContentLabel(toDelete.getContentLabel())
             .setName(toDelete.getName());
 
-        List<ConsumerContentOverrideDTO> expected = overrides.stream()
+        List<ContentOverrideDTO> expected = overrides.stream()
             .map(this.modelTranslator.getStreamMapper(ConsumerContentOverride.class,
-                ConsumerContentOverrideDTO.class))
+                ContentOverrideDTO.class))
             .collect(Collectors.toList());
 
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .deleteContentOverrides(context, principal, Arrays.asList(toDeleteDTO))
             .list();
 
@@ -208,16 +184,15 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
         List<ConsumerContentOverride> overrides = this.createOverrides(this.consumer, 1, 3);
 
         ConsumerContentOverride toDelete = overrides.remove(1);
-        ConsumerContentOverrideDTO toDeleteDTO = new ConsumerContentOverrideDTO()
-            .setConsumer(this.modelTranslator.translate(this.consumer, ConsumerDTO.class))
+        ContentOverrideDTO toDeleteDTO = new ContentOverrideDTO()
             .setContentLabel(toDelete.getContentLabel());
 
-        List<ConsumerContentOverrideDTO> expected = overrides.stream()
+        List<ContentOverrideDTO> expected = overrides.stream()
             .map(this.modelTranslator.getStreamMapper(ConsumerContentOverride.class,
-                ConsumerContentOverrideDTO.class))
+                ContentOverrideDTO.class))
             .collect(Collectors.toList());
 
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .deleteContentOverrides(context, principal, Arrays.asList(toDeleteDTO))
             .list();
 
@@ -228,7 +203,7 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
     public void testDeleteAllOverridesUsingEmptyList() {
         List<ConsumerContentOverride> overrides = this.createOverrides(this.consumer, 1, 3);
 
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .deleteContentOverrides(context, principal, Collections.emptyList())
             .list();
 
@@ -239,7 +214,7 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
     public void testDeleteAllOverridesUsingEmptyContentLabel() {
         List<ConsumerContentOverride> overrides = this.createOverrides(this.consumer, 1, 3);
 
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .deleteContentOverrides(context, principal, Collections.emptyList())
             .list();
 
@@ -250,24 +225,22 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
     public void testAddOverride() {
         ConsumerDTO kdto = this.modelTranslator.translate(this.consumer, ConsumerDTO.class);
 
-        List<ConsumerContentOverrideDTO> overrides = new LinkedList<>();
-        ConsumerContentOverrideDTO dto = new ConsumerContentOverrideDTO()
-            .setConsumer(kdto)
+        List<ContentOverrideDTO> overrides = new LinkedList<>();
+        ContentOverrideDTO dto = new ContentOverrideDTO()
             .setContentLabel("test_label")
             .setName("override_name")
             .setValue("override_value");
 
         overrides.add(dto);
 
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .addContentOverrides(context, principal, overrides)
             .list();
 
         this.compareOverrideDTOs(overrides, actual);
 
         // Add a second to ensure we don't clobber the first
-        dto = new ConsumerContentOverrideDTO()
-            .setConsumer(kdto)
+        dto = new ContentOverrideDTO()
             .setContentLabel("test_label-2")
             .setName("override_name-2")
             .setValue("override_value-2");
@@ -283,16 +256,15 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
     public void testAddOverrideOverwritesExistingWhenMatched() {
         ConsumerDTO kdto = this.modelTranslator.translate(this.consumer, ConsumerDTO.class);
 
-        List<ConsumerContentOverrideDTO> overrides = new LinkedList<>();
-        ConsumerContentOverrideDTO dto = new ConsumerContentOverrideDTO()
-            .setConsumer(kdto)
+        List<ContentOverrideDTO> overrides = new LinkedList<>();
+        ContentOverrideDTO dto = new ContentOverrideDTO()
             .setContentLabel("test_label")
             .setName("override_name")
             .setValue("override_value");
 
         overrides.add(dto);
 
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .addContentOverrides(context, principal, overrides)
             .list();
 
@@ -300,8 +272,7 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
 
         // Add a "new" override that has the same label and name as the first which should inherit
         // the new value
-        dto = new ConsumerContentOverrideDTO()
-            .setConsumer(kdto)
+        dto = new ContentOverrideDTO()
             .setContentLabel("test_label")
             .setName("override_name")
             .setValue("override_value-2");
@@ -318,16 +289,15 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
     public void testAddOverrideFailsValidationWithNoParent() {
         ConsumerDTO kdto = this.modelTranslator.translate(this.consumer, ConsumerDTO.class);
 
-        List<ConsumerContentOverrideDTO> overrides = new LinkedList<>();
-        ConsumerContentOverrideDTO dto = new ConsumerContentOverrideDTO()
-            .setConsumer(kdto)
+        List<ContentOverrideDTO> overrides = new LinkedList<>();
+        ContentOverrideDTO dto = new ContentOverrideDTO()
             .setContentLabel("test_label")
             .setName("override_name")
             .setValue("override_value");
 
         overrides.add(dto);
 
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .addContentOverrides(context, principal, overrides)
             .list();
 
@@ -338,16 +308,15 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
     public void testAddOverrideFailsValidationWithNullLabel() {
         ConsumerDTO kdto = this.modelTranslator.translate(this.consumer, ConsumerDTO.class);
 
-        List<ConsumerContentOverrideDTO> overrides = new LinkedList<>();
-        ConsumerContentOverrideDTO dto = new ConsumerContentOverrideDTO()
-            .setConsumer(kdto)
+        List<ContentOverrideDTO> overrides = new LinkedList<>();
+        ContentOverrideDTO dto = new ContentOverrideDTO()
             .setContentLabel(null)
             .setName("override_name")
             .setValue("override_value");
 
         overrides.add(dto);
 
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .addContentOverrides(context, principal, overrides)
             .list();
     }
@@ -356,16 +325,15 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
     public void testAddOverrideFailsValidationWithEmptyLabel() {
         ConsumerDTO kdto = this.modelTranslator.translate(this.consumer, ConsumerDTO.class);
 
-        List<ConsumerContentOverrideDTO> overrides = new LinkedList<>();
-        ConsumerContentOverrideDTO dto = new ConsumerContentOverrideDTO()
-            .setConsumer(kdto)
+        List<ContentOverrideDTO> overrides = new LinkedList<>();
+        ContentOverrideDTO dto = new ContentOverrideDTO()
             .setContentLabel("")
             .setName("override_name")
             .setValue("override_value");
 
         overrides.add(dto);
 
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .addContentOverrides(context, principal, overrides)
             .list();
     }
@@ -374,16 +342,15 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
     public void testAddOverrideFailsValidationWithLongLabel() {
         ConsumerDTO kdto = this.modelTranslator.translate(this.consumer, ConsumerDTO.class);
 
-        List<ConsumerContentOverrideDTO> overrides = new LinkedList<>();
-        ConsumerContentOverrideDTO dto = new ConsumerContentOverrideDTO()
-            .setConsumer(kdto)
+        List<ContentOverrideDTO> overrides = new LinkedList<>();
+        ContentOverrideDTO dto = new ContentOverrideDTO()
             .setContentLabel(this.getLongString())
             .setName("override_name")
             .setValue("override_value");
 
         overrides.add(dto);
 
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .addContentOverrides(context, principal, overrides)
             .list();
     }
@@ -392,16 +359,15 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
     public void testAddOverrideFailsValidationWithNullName() {
         ConsumerDTO kdto = this.modelTranslator.translate(this.consumer, ConsumerDTO.class);
 
-        List<ConsumerContentOverrideDTO> overrides = new LinkedList<>();
-        ConsumerContentOverrideDTO dto = new ConsumerContentOverrideDTO()
-            .setConsumer(kdto)
+        List<ContentOverrideDTO> overrides = new LinkedList<>();
+        ContentOverrideDTO dto = new ContentOverrideDTO()
             .setContentLabel("content_label")
             .setName(null)
             .setValue("override_value");
 
         overrides.add(dto);
 
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .addContentOverrides(context, principal, overrides)
             .list();
     }
@@ -410,16 +376,15 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
     public void testAddOverrideFailsValidationWithEmptyName() {
         ConsumerDTO kdto = this.modelTranslator.translate(this.consumer, ConsumerDTO.class);
 
-        List<ConsumerContentOverrideDTO> overrides = new LinkedList<>();
-        ConsumerContentOverrideDTO dto = new ConsumerContentOverrideDTO()
-            .setConsumer(kdto)
+        List<ContentOverrideDTO> overrides = new LinkedList<>();
+        ContentOverrideDTO dto = new ContentOverrideDTO()
             .setContentLabel("content_label")
             .setName("")
             .setValue("override_value");
 
         overrides.add(dto);
 
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .addContentOverrides(context, principal, overrides)
             .list();
     }
@@ -428,16 +393,15 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
     public void testAddOverrideFailsValidationWithLongName() {
         ConsumerDTO kdto = this.modelTranslator.translate(this.consumer, ConsumerDTO.class);
 
-        List<ConsumerContentOverrideDTO> overrides = new LinkedList<>();
-        ConsumerContentOverrideDTO dto = new ConsumerContentOverrideDTO()
-            .setConsumer(kdto)
+        List<ContentOverrideDTO> overrides = new LinkedList<>();
+        ContentOverrideDTO dto = new ContentOverrideDTO()
             .setContentLabel("content_label")
             .setName(this.getLongString())
             .setValue("override_value");
 
         overrides.add(dto);
 
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .addContentOverrides(context, principal, overrides)
             .list();
     }
@@ -446,16 +410,15 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
     public void testAddOverrideFailsValidationWithNullValue() {
         ConsumerDTO kdto = this.modelTranslator.translate(this.consumer, ConsumerDTO.class);
 
-        List<ConsumerContentOverrideDTO> overrides = new LinkedList<>();
-        ConsumerContentOverrideDTO dto = new ConsumerContentOverrideDTO()
-            .setConsumer(kdto)
+        List<ContentOverrideDTO> overrides = new LinkedList<>();
+        ContentOverrideDTO dto = new ContentOverrideDTO()
             .setContentLabel("content_label")
             .setName("override_name")
             .setValue(null);
 
         overrides.add(dto);
 
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .addContentOverrides(context, principal, overrides)
             .list();
     }
@@ -464,16 +427,15 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
     public void testAddOverrideFailsValidationWithEmptyValue() {
         ConsumerDTO kdto = this.modelTranslator.translate(this.consumer, ConsumerDTO.class);
 
-        List<ConsumerContentOverrideDTO> overrides = new LinkedList<>();
-        ConsumerContentOverrideDTO dto = new ConsumerContentOverrideDTO()
-            .setConsumer(kdto)
+        List<ContentOverrideDTO> overrides = new LinkedList<>();
+        ContentOverrideDTO dto = new ContentOverrideDTO()
             .setContentLabel("content_label")
             .setName("override_name")
             .setValue("");
 
         overrides.add(dto);
 
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .addContentOverrides(context, principal, overrides)
             .list();
     }
@@ -482,16 +444,15 @@ public class ConsumerContentOverrideResourceTest extends DatabaseTestFixture {
     public void testAddOverrideFailsValidationWithLongValue() {
         ConsumerDTO kdto = this.modelTranslator.translate(this.consumer, ConsumerDTO.class);
 
-        List<ConsumerContentOverrideDTO> overrides = new LinkedList<>();
-        ConsumerContentOverrideDTO dto = new ConsumerContentOverrideDTO()
-            .setConsumer(kdto)
+        List<ContentOverrideDTO> overrides = new LinkedList<>();
+        ContentOverrideDTO dto = new ContentOverrideDTO()
             .setContentLabel("content_label")
             .setName("override_name")
             .setValue(this.getLongString());
 
         overrides.add(dto);
 
-        List<? extends ContentOverrideDTO> actual = this.resource
+        List<ContentOverrideDTO> actual = this.resource
             .addContentOverrides(context, principal, overrides)
             .list();
     }

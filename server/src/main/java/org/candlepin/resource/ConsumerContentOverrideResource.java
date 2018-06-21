@@ -15,7 +15,6 @@
 package org.candlepin.resource;
 
 import org.candlepin.dto.ModelTranslator;
-import org.candlepin.dto.api.v1.ConsumerContentOverrideDTO;
 import org.candlepin.model.Consumer;
 import org.candlepin.model.ConsumerContentOverride;
 import org.candlepin.model.ConsumerContentOverrideCurator;
@@ -39,8 +38,7 @@ import io.swagger.annotations.Authorization;
 @Path("/consumers/{consumer_uuid}/content_overrides")
 @Api(value = "consumers", authorizations = { @Authorization("basic") })
 public class ConsumerContentOverrideResource extends
-    ContentOverrideResource<ConsumerContentOverride, ConsumerContentOverrideDTO,
-    ConsumerContentOverrideCurator, Consumer> {
+    ContentOverrideResource<ConsumerContentOverride, ConsumerContentOverrideCurator, Consumer> {
 
     private ConsumerCurator consumerCurator;
 

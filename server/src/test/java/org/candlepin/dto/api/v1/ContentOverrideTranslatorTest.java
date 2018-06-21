@@ -36,7 +36,8 @@ public class ContentOverrideTranslatorTest extends
 
     @Override
     protected ContentOverrideTranslator initObjectTranslator() {
-        return new ContentOverrideTranslator();
+        this.translator = new ContentOverrideTranslator();
+        return this.translator;
     }
 
     @Override

@@ -46,13 +46,6 @@ public class ContentOverrideValidatorTest extends DatabaseTestFixture  {
     private Configuration config;
     private ContentOverrideValidator validator;
 
-    /**
-     * Test implementation of the ContentOverrideDTO
-     */
-    private static class TestContentOverrideDTO extends ContentOverrideDTO<TestContentOverrideDTO> {
-        // Intentionally left empty
-    }
-
     @Before
     public void setupTest() {
         this.config = mock(Configuration.class);
@@ -63,7 +56,7 @@ public class ContentOverrideValidatorTest extends DatabaseTestFixture  {
         List<ContentOverrideDTO> overrides = new LinkedList<>();
 
         for (int i = 0; i < count; ++i) {
-            overrides.add(new TestContentOverrideDTO()
+            overrides.add(new ContentOverrideDTO()
                 .setContentLabel("test_label-" + i)
                 .setName("test_name-" + i)
                 .setValue("test_value-" + i));
@@ -97,7 +90,7 @@ public class ContentOverrideValidatorTest extends DatabaseTestFixture  {
         this.validator.validate(overrides);
 
         // Add our invalid override...
-        ContentOverrideDTO invalid = new TestContentOverrideDTO()
+        ContentOverrideDTO invalid = new ContentOverrideDTO()
             .setContentLabel(null)
             .setName("test_name-x")
             .setValue("test_value-x");
@@ -116,7 +109,7 @@ public class ContentOverrideValidatorTest extends DatabaseTestFixture  {
         this.validator.validate(overrides);
 
         // Add our invalid override...
-        ContentOverrideDTO invalid = new TestContentOverrideDTO()
+        ContentOverrideDTO invalid = new ContentOverrideDTO()
             .setContentLabel("")
             .setName("test_name-x")
             .setValue("test_value-x");
@@ -140,7 +133,7 @@ public class ContentOverrideValidatorTest extends DatabaseTestFixture  {
             builder.append("longstring");
         }
 
-        ContentOverrideDTO invalid = new TestContentOverrideDTO()
+        ContentOverrideDTO invalid = new ContentOverrideDTO()
             .setContentLabel(builder.toString())
             .setName("test_name-x")
             .setValue("test_value-x");
@@ -159,7 +152,7 @@ public class ContentOverrideValidatorTest extends DatabaseTestFixture  {
         this.validator.validate(overrides);
 
         // Add our invalid override...
-        ContentOverrideDTO invalid = new TestContentOverrideDTO()
+        ContentOverrideDTO invalid = new ContentOverrideDTO()
             .setContentLabel("test_label-x")
             .setName(null)
             .setValue("test_value-x");
@@ -178,7 +171,7 @@ public class ContentOverrideValidatorTest extends DatabaseTestFixture  {
         this.validator.validate(overrides);
 
         // Add our invalid override...
-        ContentOverrideDTO invalid = new TestContentOverrideDTO()
+        ContentOverrideDTO invalid = new ContentOverrideDTO()
             .setContentLabel("test_label-x")
             .setName("")
             .setValue("test_value-x");
@@ -202,7 +195,7 @@ public class ContentOverrideValidatorTest extends DatabaseTestFixture  {
             builder.append("longstring");
         }
 
-        ContentOverrideDTO invalid = new TestContentOverrideDTO()
+        ContentOverrideDTO invalid = new ContentOverrideDTO()
             .setContentLabel("test_label-x")
             .setName(builder.toString())
             .setValue("test_value-x");
@@ -238,7 +231,7 @@ public class ContentOverrideValidatorTest extends DatabaseTestFixture  {
 
         ContentOverrideValidator validator = new ContentOverrideValidator(this.config, this.i18n);
 
-        ContentOverrideDTO invalid = new TestContentOverrideDTO()
+        ContentOverrideDTO invalid = new ContentOverrideDTO()
             .setContentLabel("test_label-x")
             .setName(property)
             .setValue("test_value-x");
@@ -272,7 +265,7 @@ public class ContentOverrideValidatorTest extends DatabaseTestFixture  {
 
         ContentOverrideValidator validator = new ContentOverrideValidator(this.config, this.i18n);
 
-        ContentOverrideDTO invalid = new TestContentOverrideDTO()
+        ContentOverrideDTO invalid = new ContentOverrideDTO()
             .setContentLabel("test_label-x")
             .setName(property)
             .setValue("test_value-x");
@@ -289,7 +282,7 @@ public class ContentOverrideValidatorTest extends DatabaseTestFixture  {
         this.validator.validate(overrides);
 
         // Add our invalid override...
-        ContentOverrideDTO invalid = new TestContentOverrideDTO()
+        ContentOverrideDTO invalid = new ContentOverrideDTO()
             .setContentLabel("test_label-x")
             .setName("test_name-x")
             .setValue(null);
@@ -308,7 +301,7 @@ public class ContentOverrideValidatorTest extends DatabaseTestFixture  {
         this.validator.validate(overrides);
 
         // Add our invalid override...
-        ContentOverrideDTO invalid = new TestContentOverrideDTO()
+        ContentOverrideDTO invalid = new ContentOverrideDTO()
             .setContentLabel("test_label-x")
             .setName("test_name-x")
             .setValue("");
@@ -332,7 +325,7 @@ public class ContentOverrideValidatorTest extends DatabaseTestFixture  {
             builder.append("longstring");
         }
 
-        ContentOverrideDTO invalid = new TestContentOverrideDTO()
+        ContentOverrideDTO invalid = new ContentOverrideDTO()
             .setContentLabel("test_label-x")
             .setName("test_name-x")
             .setValue(builder.toString());

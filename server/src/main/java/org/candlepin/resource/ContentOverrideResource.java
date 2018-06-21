@@ -48,12 +48,10 @@ import javax.ws.rs.core.UriInfo;
  * Abstraction of the API Gateway for Content Overrides
  *
  * @param <T> ContentOverride type
- * @param <DTO> Content override DTO type to be accepted by this resource
  * @param <Curator> curator class for the ContentOverride type
  * @param <Parent> parent of the content override, Consumer or ActivationKey for example
  */
 public abstract class ContentOverrideResource<T extends ContentOverride<T, Parent>,
-    DTO extends ContentOverrideDTO,
     Curator extends ContentOverrideCurator<T, Parent>,
     Parent extends AbstractHibernateObject> {
 
@@ -102,7 +100,7 @@ public abstract class ContentOverrideResource<T extends ContentOverride<T, Paren
     public CandlepinQuery<ContentOverrideDTO> addContentOverrides(
         @Context UriInfo info,
         @Context Principal principal,
-        List<DTO> entries) {
+        List<ContentOverrideDTO> entries) {
 
         // Validate our input
         this.validator.validate(entries);
@@ -112,7 +110,7 @@ public abstract class ContentOverrideResource<T extends ContentOverride<T, Paren
         Parent parent = this.verifyAndGetParent(parentId, principal, Access.ALL);
 
         try {
-            for (DTO dto : entries) {
+            for (ContentOverrideDTO dto : entries) {
                 T override = this.curator.retrieve(parent, dto.getContentLabel(), dto.getName());
 
                 // We're counting on Hibernate to do our batching for us here...
@@ -166,7 +164,7 @@ public abstract class ContentOverrideResource<T extends ContentOverride<T, Paren
     public CandlepinQuery<ContentOverrideDTO> deleteContentOverrides(
         @Context UriInfo info,
         @Context Principal principal,
-        List<DTO> entries) {
+        List<ContentOverrideDTO> entries) {
 
         String parentId = info.getPathParameters().getFirst(this.getParentPath());
         Parent parent = this.verifyAndGetParent(parentId, principal, Access.ALL);
@@ -175,7 +173,7 @@ public abstract class ContentOverrideResource<T extends ContentOverride<T, Paren
             this.curator.removeByParent(parent);
         }
         else {
-            for (DTO dto : entries) {
+            for (ContentOverrideDTO dto : entries) {
                 String label = dto.getContentLabel();
                 if (StringUtils.isBlank(label)) {
                     this.curator.removeByParent(parent);

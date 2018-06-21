@@ -40,9 +40,7 @@ public class ContentOverrideTranslator
      */
     @Override
     public ContentOverrideDTO translate(ModelTranslator translator, ContentOverride source) {
-        return source != null ?
-            this.populate(translator, source, new ContentOverrideDTO<ContentOverrideDTO>()) :
-            null;
+        return source != null ? this.populate(translator, source, new ContentOverrideDTO()) : null;
     }
 
     /**

@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 import junitparams.JUnitParamsRunner;
 import org.candlepin.dto.AbstractTranslatorTest;
 import org.candlepin.dto.ModelTranslator;
+import org.candlepin.model.ContentOverride;
 import org.candlepin.model.Pool;
 import org.candlepin.model.Product;
 import org.candlepin.model.Release;
@@ -42,19 +43,24 @@ import java.util.Set;
 public class ActivationKeyTranslatorTest extends
     AbstractTranslatorTest<ActivationKey, ActivationKeyDTO, ActivationKeyTranslator> {
 
-    protected ActivationKeyTranslator translator = new ActivationKeyTranslator();
-
     protected OwnerTranslatorTest ownerTranslatorTest = new OwnerTranslatorTest();
+    protected ContentOverrideTranslatorTest overrideTranslatorTest = new ContentOverrideTranslatorTest();
+
+    @Override
+    protected ActivationKeyTranslator initObjectTranslator() {
+        this.ownerTranslatorTest.initObjectTranslator();
+        this.overrideTranslatorTest.initObjectTranslator();
+
+        this.translator = new ActivationKeyTranslator();
+        return this.translator;
+    }
 
     @Override
     protected void initModelTranslator(ModelTranslator modelTranslator) {
         this.ownerTranslatorTest.initModelTranslator(modelTranslator);
-        modelTranslator.registerTranslator(this.translator, ActivationKey.class, ActivationKeyDTO.class);
-    }
+        this.overrideTranslatorTest.initModelTranslator(modelTranslator);
 
-    @Override
-    protected ActivationKeyTranslator initObjectTranslator() {
-        return this.translator;
+        modelTranslator.registerTranslator(this.translator, ActivationKey.class, ActivationKeyDTO.class);
     }
 
     @Override
@@ -71,6 +77,7 @@ public class ActivationKeyTranslatorTest extends
 
         Set<Product> products = new HashSet<>();
         Set<ActivationKeyPool> akpools = new HashSet<>();
+        Set<ActivationKeyContentOverride> overrides = new HashSet<>();
 
         for (int i = 0; i < 3; ++i) {
             Product product = new Product();
@@ -81,12 +88,20 @@ public class ActivationKeyTranslatorTest extends
 
             ActivationKeyPool akp = new ActivationKeyPool(source, pool, 1L);
 
+            ActivationKeyContentOverride override = new ActivationKeyContentOverride();
+            override.setKey(source);
+            override.setContentLabel("test_content_label-" + i);
+            override.setName("test_name-" + i);
+            override.setValue("test_value-" + i);
+
             products.add(product);
             akpools.add(akp);
+            overrides.add(override);
         }
 
         source.setProducts(products);
         source.setPools(akpools);
+        source.setContentOverrides(overrides);
 
         return source;
     }
@@ -124,41 +139,6 @@ public class ActivationKeyTranslatorTest extends
                 assertNull(productIds);
             }
 
-            // Check content overrides
-            Collection<ActivationKeyContentOverride> overrides = source.getContentOverrides();
-            Collection<ActivationKeyContentOverrideDTO> overrideDTOs = dest.getContentOverrides();
-
-
-            if (overrides != null) {
-                int matches = 0;
-                assertNotNull(overrideDTOs);
-                assertEquals(overrides.size(), overrideDTOs.size());
-
-                for (ActivationKeyContentOverride override : overrides) {
-                    assertNotNull(override);
-
-                    for (ActivationKeyContentOverrideDTO odto : overrideDTOs) {
-                        assertNotNull(odto);
-
-                        assertSame(dest, odto.getActivationKey());
-
-                        EqualsBuilder builder = new EqualsBuilder()
-                            .append(override.getContentLabel(), odto.getContentLabel())
-                            .append(override.getName(), odto.getName());
-
-                        if (builder.isEquals()) {
-                            assertEquals(override.getValue(), odto.getValue());
-                            ++matches;
-                        }
-                    }
-                }
-
-                assertEquals(overrides.size(), matches);
-            }
-            else {
-                assertNull(overrideDTOs);
-            }
-
             // Check release version
             Release releaseSource = source.getReleaseVer();
             String releaseDestination = dest.getReleaseVersion();
@@ -183,6 +163,38 @@ public class ActivationKeyTranslatorTest extends
                             assertEquals(akPool.getQuantity(), akPoolDto.getQuantity());
                         }
                     }
+                }
+
+                // Check content overrides
+                Collection<? extends ContentOverride> overrides = source.getContentOverrides();
+                Collection<ContentOverrideDTO> overrideDTOs = dest.getContentOverrides();
+
+                if (overrides != null) {
+                    int matches = 0;
+                    assertNotNull(overrideDTOs);
+                    assertEquals(overrides.size(), overrideDTOs.size());
+
+                    for (ContentOverride override : overrides) {
+                        assertNotNull(override);
+
+                        for (ContentOverrideDTO odto : overrideDTOs) {
+                            assertNotNull(odto);
+
+                            EqualsBuilder builder = new EqualsBuilder()
+                                .append(override.getContentLabel(), odto.getContentLabel())
+                                .append(override.getName(), odto.getName());
+
+                            if (builder.isEquals()) {
+                                this.overrideTranslatorTest.verifyOutput(override, odto, true);
+                                ++matches;
+                            }
+                        }
+                    }
+
+                    assertEquals(overrides.size(), matches);
+                }
+                else {
+                    assertNull(overrideDTOs);
                 }
             }
             else {

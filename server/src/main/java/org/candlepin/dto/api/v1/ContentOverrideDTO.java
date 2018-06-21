@@ -24,11 +24,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 /**
  * The ContentOverrideDTO is used as a DTO for the ContentOverride class and the basis for its
  * subclasses.
- *
- * @param <T>
- *  The type of this content override
  */
-public class ContentOverrideDTO<T extends ContentOverrideDTO> extends TimestampedCandlepinDTO<T> {
+public class ContentOverrideDTO extends TimestampedCandlepinDTO<ContentOverrideDTO> {
 
     public static final long serialVersionUID = 1L;
 
@@ -50,7 +47,7 @@ public class ContentOverrideDTO<T extends ContentOverrideDTO> extends Timestampe
      * @param source
      *  The source entity to copy
      */
-    public ContentOverrideDTO(T source) {
+    public ContentOverrideDTO(ContentOverrideDTO source) {
         super(source);
     }
 
@@ -75,9 +72,9 @@ public class ContentOverrideDTO<T extends ContentOverrideDTO> extends Timestampe
      * @return
      *  A reference to this DTO
      */
-    public T setContentLabel(String label) {
+    public ContentOverrideDTO setContentLabel(String label) {
         this.contentLabel = label;
-        return (T) this;
+        return this;
     }
 
     /**
@@ -101,9 +98,9 @@ public class ContentOverrideDTO<T extends ContentOverrideDTO> extends Timestampe
      * @return
      *  A reference to this DTO
      */
-    public T setName(String name) {
+    public ContentOverrideDTO setName(String name) {
         this.name = name;
-        return (T) this;
+        return this;
     }
 
     /**
@@ -127,9 +124,9 @@ public class ContentOverrideDTO<T extends ContentOverrideDTO> extends Timestampe
      * @return
      *  A reference to this DTO
      */
-    public T setValue(String value) {
+    public ContentOverrideDTO setValue(String value) {
         this.value = value;
-        return (T) this;
+        return this;
     }
 
     /**
@@ -184,14 +181,14 @@ public class ContentOverrideDTO<T extends ContentOverrideDTO> extends Timestampe
      * {@inheritDoc}
      */
     @Override
-    public T populate(T source) {
+    public ContentOverrideDTO populate(ContentOverrideDTO source) {
         super.populate(source);
 
         this.setContentLabel(source.getContentLabel());
         this.setName(source.getName());
         this.setValue(source.getValue());
 
-        return (T) this;
+        return this;
     }
 
 }

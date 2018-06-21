@@ -16,11 +16,11 @@ package org.candlepin.dto.api.v1;
 
 import org.candlepin.dto.ModelTranslator;
 import org.candlepin.dto.TimestampedEntityTranslator;
+import org.candlepin.model.ContentOverride;
 import org.candlepin.model.Product;
 import org.candlepin.model.Release;
 import org.candlepin.model.activationkeys.ActivationKey;
 import org.candlepin.model.activationkeys.ActivationKeyPool;
-import org.candlepin.model.activationkeys.ActivationKeyContentOverride;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -72,29 +72,6 @@ public class ActivationKeyTranslator extends TimestampedEntityTranslator<Activat
             .setAutoAttach(source.isAutoAttach());
 
 
-        // Process content overrides
-        Set<ActivationKeyContentOverride> overrides = source.getContentOverrides();
-        dest.setContentOverrides(null);
-
-        if (overrides != null) {
-            Set<ActivationKeyContentOverrideDTO> overrideDTOs = new HashSet<>();
-
-            for (ActivationKeyContentOverride override : overrides) {
-                if (override != null) {
-                    overrideDTOs.add(new ActivationKeyContentOverrideDTO()
-                        .setActivationKey(dest)
-                        .setContentLabel(override.getContentLabel())
-                        .setName(override.getName())
-                        .setValue(override.getValue()));
-                }
-            }
-
-            dest.setContentOverrides(overrideDTOs);
-        }
-        else {
-            dest.setContentOverrides(null);
-        }
-
         // Set activation key product IDs
         Set<Product> products = source.getProducts();
         if (products != null) {
@@ -135,6 +112,21 @@ public class ActivationKeyTranslator extends TimestampedEntityTranslator<Activat
             }
             else {
                 dest.setPools(null);
+            }
+
+            // Process content overrides
+            Set<? extends ContentOverride> overrides = source.getContentOverrides();
+            if (overrides != null) {
+                Set<ContentOverrideDTO> dtos = new HashSet<>();
+
+                for (ContentOverride override : overrides) {
+                    dtos.add(modelTranslator.translate(override, ContentOverrideDTO.class));
+                }
+
+                dest.setContentOverrides(dtos);
+            }
+            else {
+                dest.setContentOverrides(null);
             }
         }
         else {

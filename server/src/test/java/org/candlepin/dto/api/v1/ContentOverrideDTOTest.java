@@ -23,25 +23,19 @@ import java.util.Map;
 
 
 /**
- * Test suite for the ActivationKeyContentOverrideDTO class
+ * Test suite for the ContentOverrideDTO class
  */
-public class ActivationKeyContentOverrideDTOTest extends AbstractDTOTest<ActivationKeyContentOverrideDTO> {
+public class ContentOverrideDTOTest extends AbstractDTOTest<ContentOverrideDTO> {
 
     protected Map<String, Object> values;
 
-    public ActivationKeyContentOverrideDTOTest() {
-        super(ActivationKeyContentOverrideDTO.class);
-
-        ActivationKeyDTO key = new ActivationKeyDTO()
-            .setId("test-id")
-            .setName("test-name")
-            .setDescription("test-description");
+    public ContentOverrideDTOTest() {
+        super(ContentOverrideDTO.class);
 
         this.values = new HashMap<>();
         this.values.put("ContentLabel", "test-content-label");
         this.values.put("Name", "test-name");
         this.values.put("Value", "test-value");
-        this.values.put("ActivationKey", key);
 
         this.values.put("Created", new Date());
         this.values.put("Updated", new Date());
